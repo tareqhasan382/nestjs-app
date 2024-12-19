@@ -6,24 +6,36 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, LoginUserDto } from './dto/create-user.dto';
+import { Role } from 'src/roles/roles.enum';
+import { Roles } from 'src/roles/role.decorator';
+import { AuthGuard } from './auth.guard';
 
 @Controller('users')
 export class UsersController {
   // Dependency injection
   constructor(private userService: UsersService) {}
   // TODO: Create data
-  @Post('')
+  @Post('signup')
   @UsePipes(ValidationPipe)
   async create(@Body() userData: CreateUserDto) {
     return this.userService.create(userData);
   }
+  // TODO: Login user
+  @Post('login')
+  @UsePipes(ValidationPipe)
+  async login(@Body() loginData: LoginUserDto) {
+    return this.userService.login(loginData);
+  }
   // TODO: Retrive all data
   @Get('')
+  @UseGuards(AuthGuard) // Use RolesGuard to protect this route
+  @Roles(Role.User) // Only 'admin' role can access this route
   async findAll() {
     return this.userService.findAll();
   }
